@@ -277,7 +277,6 @@ def train(model, args):
                                  n_class_attr=args.n_class_attr, resampling=args.resampling)
         val_loader = load_data([val_data_path], args.use_attr, args.no_img, args.batch_size, image_dir=args.image_dir, n_class_attr=args.n_class_attr)
 
-    print(train_loader == val_loader)
 
 
     best_val_epoch = -1
