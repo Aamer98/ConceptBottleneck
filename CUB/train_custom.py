@@ -157,7 +157,6 @@ def run_epoch_custom(model, optimizer, loader, loss_meter, acc_meter, criterion,
             attr_labels_var = attr_labels_var.cuda() if torch.cuda.is_available() else attr_labels_var
         
 
-        print("outputs shape: " + str(outputs.shape) + "  | attr_labels shape: " + str(attr_labels_var.shape))
         inputs_var = torch.autograd.Variable(inputs)
         inputs_var = inputs_var.cuda() if torch.cuda.is_available() else inputs_var
         labels_var = torch.autograd.Variable(labels)
@@ -167,6 +166,8 @@ def run_epoch_custom(model, optimizer, loader, loss_meter, acc_meter, criterion,
             outputs, aux_outputs = model(inputs_var)
             losses = []
             out_start = 0
+            print("outputs shape: " + str(outputs.shape) + "  | attr_labels shape: " + str(attr_labels_var.shape))
+
             if not args.bottleneck: #loss main is for the main task label (always the first output)
                 loss_main = 1.0 * criterion(outputs[0], labels_var) + 0.4 * criterion(aux_outputs[0], labels_var)
                 losses.append(loss_main)
