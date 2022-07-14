@@ -251,6 +251,17 @@ def train(model, args):
         if epoch - best_val_epoch >= 100:
             print("Early stopping because acc hasn't improved for a long time")
             break
+    
+    
+    test_loss_meter = AverageMeter()
+    test_acc_meter = AverageMeter()
+    test_data_path = train_data_path.replace('train.pkl', 'test.pkl')
+    test_loader = load_data([], args.use_attr, args.no_img, args.batch_size, image_dir=args.image_dir, n_class_attr=args.n_class_attr)
+
+    test_loss_meter, test_acc_meter = run_epoch(model, optimizer, test_loader, test_loss_meter, test_acc_meter, criterion, attr_criterion, args, is_training=False)
+
+    print('Test loss: %.4f\tTest accuracy: %.4f\t'
+                % (test_loss_meter.avg, test_acc_meter.avg))
 
 def train_X_to_C(args):
     model = ModelXtoC(pretrained=args.pretrained, freeze=args.freeze, num_classes=N_CLASSES, use_aux=args.use_aux,
