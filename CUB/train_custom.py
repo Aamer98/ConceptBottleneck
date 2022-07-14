@@ -180,7 +180,7 @@ def run_epoch_custom(model, optimizer, loader, loss_meter, acc_meter, criterion,
                 #                                            + 0.4 * attr_criterion[i](aux_outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i])))
                 #losses = args.attr_loss_weight * (1.0 * attr_criterion(outputs.type(torch.cuda.FloatTensor), attr_labels_var \
                 #                                            + 0.4 * attr_criterion(aux_outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i])))
-                losses = args.attr_loss_weight * criterion(outputs, attr_labels_var) + 0.4 * criterion(aux_outputs, attr_labels_var)
+                losses = args.attr_loss_weight * criterion(torch.tensor(outputs).cuda(), attr_labels_var) + 0.4 * criterion(torch.tensor(aux_outputs).cuda(), attr_labels_var)
 
         else: #testing or no aux logits
             outputs = model(inputs_var)
@@ -193,7 +193,7 @@ def run_epoch_custom(model, optimizer, loader, loss_meter, acc_meter, criterion,
             if attr_criterion is not None and args.attr_loss_weight > 0: #X -> A, cotraining, end2end
                 #for i in range(len(attr_criterion)):
                 #    losses.append(args.attr_loss_weight * attr_criterion[i](outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
-                losses = args.attr_loss_weight * criterion(outputs, attr_labels_var) + 0.4 * criterion(aux_outputs, attr_labels_var)
+                losses = args.attr_loss_weight * criterion(torch.tensor(outputs).cuda(), attr_labels_var) + 0.4 * criterion(torch.tensor(aux_outputs).cuda(), attr_labels_var)
 
 
         if args.bottleneck: #attribute accuracy
