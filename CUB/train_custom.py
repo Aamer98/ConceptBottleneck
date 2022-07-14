@@ -157,7 +157,7 @@ def run_epoch_custom(model, optimizer, loader, loss_meter, acc_meter, criterion,
             attr_labels_var = attr_labels_var.cuda() if torch.cuda.is_available() else attr_labels_var
         
 
-        print("outputs shape: " + str(outputs.shape) + "  | attr_lab: " + str(labels_var.shape))
+        print("outputs shape: " + str(outputs.shape) + "  | attr_labels shape: " + str(attr_labels_var.shape))
         inputs_var = torch.autograd.Variable(inputs)
         inputs_var = inputs_var.cuda() if torch.cuda.is_available() else inputs_var
         labels_var = torch.autograd.Variable(labels)
