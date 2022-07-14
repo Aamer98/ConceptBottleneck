@@ -258,7 +258,7 @@ def train(model, args):
     test_data_path = train_data_path.replace('train.pkl', 'test.pkl')
     test_loader = load_data([], args.use_attr, args.no_img, args.batch_size, image_dir=args.image_dir, n_class_attr=args.n_class_attr)
 
-    test_loss_meter, test_acc_meter = run_epoch(model, optimizer, test_loader, test_loss_meter, test_acc_meter, criterion, attr_criterion, args, is_training=False)
+    test_loss_meter, test_acc_meter = run_epoch(model, optimizer, val_loader, val_loss_meter, val_acc_meter, criterion, attr_criterion, args, is_training=False)
 
     print('Test loss: %.4f\tTest accuracy: %.4f\t'
                 % (test_loss_meter.avg, test_acc_meter.avg))
