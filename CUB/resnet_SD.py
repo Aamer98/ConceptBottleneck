@@ -272,7 +272,7 @@ class Multi_ResNet(nn.Module):
         else:
             return out, middle_output1, middle_output2, middle_output3, final_fea, middle1_fea, middle2_fea, middle3_fea
 
-        return x, middle_output1, middle_output2, middle_output3, final_fea, middle1_fea, middle2_fea, middle3_fea
+        return out, middle_output1, middle_output2, middle_output3, final_fea, middle1_fea, middle2_fea, middle3_fea
 
 def multi_resnet50_kd(num_classes=1000):
     return Multi_ResNet(BottleneckBlock, [3,4,6,3], num_classes=num_classes)
