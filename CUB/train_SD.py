@@ -53,7 +53,7 @@ def run_epoch_simple(model, optimizer, loader, loss_meter, acc_meter, criterion,
             optimizer.step() #optimizer step to update parameters
     return loss_meter, acc_meter
 
-def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_criterion, args, is_training batch_time, data_time, losses_m, top1, middle1_losses, middle2_losses, middle3_losses, losses1_kd, losses2_kd, losses3_kd, feature_losses_1, feature_losses_2, feature_losses_3, total_losses, middle1_top1, middle2_top1, middle3_top1):
+def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_criterion, args, is_training, batch_time, data_time, losses_m, top1, middle1_losses, middle2_losses, middle3_losses, losses1_kd, losses2_kd, losses3_kd, feature_losses_1, feature_losses_2, feature_losses_3, total_losses, middle1_top1, middle2_top1, middle3_top1):
     """
     For the rest of the networks (X -> A, cotraining, simple finetune)
     """
