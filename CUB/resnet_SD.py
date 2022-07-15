@@ -142,10 +142,7 @@ class Multi_ResNet(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         # self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        if connect_CY:
-            self.cy_fc = FC(n_attributes, num_classes, expand_dim)
-        else:
-            self.cy_fc = None
+
 
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
@@ -179,7 +176,14 @@ class Multi_ResNet(nn.Module):
         self.middle_fc3 = nn.Linear(512 * block.expansion, num_classes)
 
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        #self.fc = nn.Linear(512 * block.expansion, num_classes)
+
+        self.all_fc = nn.ModuleList()
+
+        if connect_CY:
+            self.cy_fc = FC(n_attributes, num_classes, expand_dim)
+        else:
+            self.cy_fc = None
 
         if self.n_attributes > 0:
             if not bottleneck: #multitasking
@@ -258,7 +262,15 @@ class Multi_ResNet(nn.Module):
         x = self.avgpool(x)
         final_fea = x
         x = torch.flatten(x, 1)
-        x = self.fc(x)
+        out = []
+        for fc in self.all_fc:
+            out.append(fc(x))
+        if self.n_attributes > 0 and not self.bottleneck and self.cy_fc is not None:
+            attr_preds = torch.cat(out[1:], dim=1)
+            out[0] += self.cy_fc(attr_preds)
+
+        else:
+            return out
 
         return x, middle_output1, middle_output2, middle_output3, final_fea, middle1_fea, middle2_fea, middle3_fea
 
