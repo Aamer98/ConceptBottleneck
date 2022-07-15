@@ -102,6 +102,13 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         l_middle2_loss = []
         l_middle3_loss = []
         l_temp4 = []
+        l_loss1by4 = []
+        l_loss2by4 = []
+        l_loss3by4 = []
+        l_middle1_prec1 = []
+        l_middle2_prec1 = []
+        l_middle3_prec1 = []
+        l_prec = []
         out_start = 0
 
 
@@ -120,6 +127,19 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 l_middle2_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
                 l_middle3_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
                 l_temp4.append(outputs[i+out_start] / args.temperature)
+                l_loss1by4.append(kd_loss_function(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
+                l_loss2by4.append(kd_loss_function(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
+                l_loss3by4.append(kd_loss_function(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
+
+
+                l_middle1_prec1.append(accuracy(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+                l_middle2_prec1.append(accuracy(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+                l_middle3_prec1.append(accuracy(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+                l_prec.append(accuracy(outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+
+
+
+
 
         if args.bottleneck: #attribute accuracy
             sigmoid_outputs = torch.nn.Sigmoid()(torch.cat(outputs, dim=1))
@@ -137,6 +157,9 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 middle3_loss = sum(l_middle3_loss)/ args.n_attributes
                 temp4 = sum(l_temp4) / args.n_attributes
                 temp4 = torch.softmax(temp4, dim=1)
+                loss1by4 = sum(l_loss1by4)/ args.n_attributes
+                loss2by4 = sum(l_loss2by4)/ args.n_attributes
+                loss3by4 = sum(l_loss3by4)/ args.n_attributes
 
                 
             else: #cotraining, loss by class prediction and loss by attribute prediction have the same weight
@@ -146,32 +169,41 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 middle3_loss = l_middle3_loss[0] + sum(l_middle3_loss[1:])
                 temp4 = sum(l_temp4) / args.n_attributes
                 temp4 = torch.softmax(temp4, dim=1)
+                loss1by4 = l_loss1by4[0] + sum(l_loss1by4[1:])
+                loss2by4 = l_loss2by4[0] + sum(l_loss2by4[1:])
+                loss3by4 = l_loss3by4[0] + sum(l_loss3by4[1:])
                 if args.normalize_loss:
                     ototal_loss = ototal_loss / (1 + args.attr_loss_weight * args.n_attributes)
                     middle1_loss = middle1_loss / (1 + args.attr_loss_weight * args.n_attributes)
                     middle2_loss = middle2_loss / (1 + args.attr_loss_weight * args.n_attributes)
                     middle3_loss = middle3_loss / (1 + args.attr_loss_weight * args.n_attributes)
+                    loss1by4 = loss1by4 / (1 + args.attr_loss_weight * args.n_attributes)
+                    loss2by4 = loss2by4 / (1 + args.attr_loss_weight * args.n_attributes)
+                    loss3by4 = loss3by4 / (1 + args.attr_loss_weight * args.n_attributes)
         else: #finetune
             ototal_loss = sum(losses)
             middle1_loss = sum(l_middle1_loss)
             middle2_loss = sum(l_middle2_loss)
             middle3_loss = sum(l_middle3_loss)
             temp4 = sum(l_temp4)
-            temp4 = torch.softmax(temp4, dim=1)       
+            temp4 = torch.softmax(temp4, dim=1)    
+            loss1by4 = sum(l_loss1by4)
+            loss2by4 = sum(l_loss2by4)
+            loss3by4 = sum(l_loss3by4)
 
 
 
+        
 
+        middle1_losses.update(middle1_loss.item(), input.size(0))
+        middle2_losses.update(middle2_loss.item(), input.size(0))
+        middle3_losses.update(middle3_loss.item(), input.size(0))
 
-        loss1by4 = kd_loss_function(middle_output1, temp4.detach(), args) * (args.temperature**2)
-        losses1_kd.update(loss1by4, input.size(0))
-            
-        loss2by4 = kd_loss_function(middle_output2, temp4.detach(), args) * (args.temperature**2)
-        losses2_kd.update(loss2by4, input.size(0))
-            
-        loss3by4 = kd_loss_function(middle_output3, temp4.detach(), args) * (args.temperature**2)
+        losses1_kd.update(loss1by4, input.size(0))            
+        losses2_kd.update(loss2by4, input.size(0))            
         losses3_kd.update(loss3by4, input.size(0))
             
+
         feature_loss_1 = feature_loss_function(middle1_fea, final_fea.detach()) 
         feature_losses_1.update(feature_loss_1, input.size(0))
         feature_loss_2 = feature_loss_function(middle2_fea, final_fea.detach()) 
@@ -184,6 +216,20 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                     args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
         total_losses.update(total_loss.item(), input.size(0))
         
+
+        prec1 = sum(l_prec)/ args.n_attributes
+        middle1_prec1 = sum(l_middle1_prec1)/ args.n_attributes
+        middle2_prec1 = sum(l_middle2_prec1)/ args.n_attributes
+        middle3_prec1 = sum(l_middle3_prec1)/ args.n_attributes
+
+
+        top1.update(prec1, input.size(0))
+        middle1_top1.update(middle1_prec1, input.size(0))
+        middle2_top1.update(middle2_prec1, input.size(0))
+        middle3_top1.update(middle3_prec1, input.size(0))
+
+
+
 
 
 
