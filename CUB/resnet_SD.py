@@ -1,5 +1,36 @@
+import os
 import torch
 import torch.nn as nn
+from torch.nn import Parameter
+import torch.nn.functional as F
+import torch.utils.model_zoo as model_zoo
+
+class FC(nn.Module):
+
+    def __init__(self, input_dim, output_dim, expand_dim, stddev=None):
+        """
+        Extend standard Torch Linear layer to include the option of expanding into 2 Linear layers
+        """
+        super(FC, self).__init__()
+        self.expand_dim = expand_dim
+        if self.expand_dim > 0:
+            self.relu = nn.ReLU()
+            self.fc_new = nn.Linear(input_dim, expand_dim)
+            self.fc = nn.Linear(expand_dim, output_dim)
+        else:
+            self.fc = nn.Linear(input_dim, output_dim)
+        if stddev:
+            self.fc.stddev = stddev
+            if expand_dim > 0:
+                self.fc_new.stddev = stddev
+
+    def forward(self, x):
+        if self.expand_dim > 0:
+            x = self.fc_new(x)
+            x = self.relu(x)
+        x = self.fc(x)
+        return x
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, 
@@ -99,7 +130,7 @@ class Multi_ResNet(nn.Module):
         num_classes (int): class num
     """
 
-    def __init__(self, block, layers, num_classes=1000):
+    def __init__(self, block, layers, num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, three_class=False, connect_CY=False):
         super(Multi_ResNet, self).__init__()
         self.inplanes = 64
         self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False)
@@ -141,6 +172,16 @@ class Multi_ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
+        if self.n_attributes > 0:
+            if not bottleneck: #multitasking
+                self.all_fc.append(FC(512 * block.expansion, num_classes, expand_dim))
+            for i in range(self.n_attributes):
+                self.all_fc.append(FC(512 * block.expansion, 1, expand_dim))
+        else:
+            self.all_fc.append(FC(512 * block.expansion, num_classes, expand_dim))
+
+
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -171,6 +212,13 @@ class Multi_ResNet(nn.Module):
         return nn.Sequential(*layer)
     
     def forward(self, x):
+
+        if self.transform_input:
+            x_ch0 = torch.unsqueeze(x[:, 0], 1) * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
+            x_ch1 = torch.unsqueeze(x[:, 1], 1) * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
+            x_ch2 = torch.unsqueeze(x[:, 2], 1) * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
+            x = torch.cat((x_ch0, x_ch1, x_ch2), 1)
+
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
