@@ -82,7 +82,7 @@ def parse_arguments():
     if dataset == 'OAI':
         from OAI.train import parse_arguments
     elif dataset == 'CUB':
-        from CUB.train import parse_arguments
+        from CUB.train_SD import parse_arguments
 
     args = parse_arguments(experiment=experiment)
     return dataset, args
