@@ -103,12 +103,7 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         l_middle3_loss = []
         l_temp4 = []
         out_start = 0
-        for i in range(len(attr_criterion)):
-            losses.append(args.attr_loss_weight * attr_criterion[i](outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
-            l_middle1_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
-            l_middle2_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
-            l_middle3_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
-            l_temp4.append(outputs[i+out_start] / args.temperature)
+
 
 
 
