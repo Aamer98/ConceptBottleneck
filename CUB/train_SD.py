@@ -141,9 +141,9 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 
             else: #cotraining, loss by class prediction and loss by attribute prediction have the same weight
                 ototal_loss = losses[0] + sum(losses[1:])
-                middle1_loss = l_middle1_loss[1] + sum(l_middle1_loss[1:])
-                middle2_loss = l_middle2_loss[2] + sum(l_middle2_loss[1:])
-                middle3_loss = l_middle3_loss[3] + sum(l_middle3_loss[1:])
+                middle1_loss = l_middle1_loss[0] + sum(l_middle1_loss[1:])
+                middle2_loss = l_middle2_loss[0] + sum(l_middle2_loss[1:])
+                middle3_loss = l_middle3_loss[0] + sum(l_middle3_loss[1:])
                 temp4 = sum(l_temp4) / args.n_attributes
                 temp4 = torch.softmax(temp4, dim=1)
                 if args.normalize_loss:
