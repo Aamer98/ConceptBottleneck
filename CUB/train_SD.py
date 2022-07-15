@@ -472,6 +472,15 @@ def parse_arguments(experiment):
                                  'For end2end & bottleneck model')
         parser.add_argument('-connect_CY', action='store_true',
                             help='Whether to use concepts as auxiliary features (in multitasking) to predict Y')
+
+        #kd parameter
+        parser.add_argument('--temperature', default=3, type=int,
+                        help='temperature to smooth the logits')
+        parser.add_argument('--alpha', default=0.1, type=float,
+                        help='weight of kd loss')
+        parser.add_argument('--beta', default=1e-6, type=float,
+                        help='weight of feature loss')
+
         args = parser.parse_args()
         args.three_class = (args.n_class_attr == 3)
         return (args,)

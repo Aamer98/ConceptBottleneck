@@ -155,16 +155,36 @@ class Multi_ResNet(nn.Module):
         )
         self.bottleneck1_1 = branchBottleNeck(64 * block.expansion, 512 * block.expansion, kernel_size=8)
         self.avgpool1 = nn.AdaptiveAvgPool2d((1,1))
-        self.middle_fc1 = nn.Linear(512 * block.expansion, num_classes)
+        
+        
+        self.middle_fc1 = nn.ModuleList()
+        if self.n_attributes > 0:
+            if not bottleneck: #multitasking
+                self.middle_fc1.append(FC(512 * block.expansion, num_classes, expand_dim))
+            for i in range(self.n_attributes):
+                self.middle_fc1.append(FC(512 * block.expansion, 1, expand_dim))
+        else:
+            self.middle_fc1.append(FC(512 * block.expansion, num_classes, expand_dim))
 
-
+        
+        
         self.downsample2_1 = nn.Sequential(
                             conv1x1(128 * block.expansion, 512 * block.expansion, stride=4),
                             nn.BatchNorm2d(512 * block.expansion),
             )
         self.bottleneck2_1 = branchBottleNeck(128 * block.expansion, 512 * block.expansion, kernel_size=4)
         self.avgpool2 = nn.AdaptiveAvgPool2d((1,1))
-        self.middle_fc2 = nn.Linear(512 * block.expansion, num_classes)
+        
+        
+        
+        self.middle_fc2 = nn.ModuleList()
+        if self.n_attributes > 0:
+            if not bottleneck: #multitasking
+                self.middle_fc2.append(FC(512 * block.expansion, num_classes, expand_dim))
+            for i in range(self.n_attributes):
+                self.middle_fc2.append(FC(512 * block.expansion, 1, expand_dim))
+        else:
+            self.middle_fc2.append(FC(512 * block.expansion, num_classes, expand_dim))
 
 
         self.downsample3_1 = nn.Sequential(
@@ -173,8 +193,18 @@ class Multi_ResNet(nn.Module):
         )
         self.bottleneck3_1 = branchBottleNeck(256 * block.expansion, 512 * block.expansion, kernel_size=2)
         self.avgpool3 = nn.AdaptiveAvgPool2d((1,1))
-        self.middle_fc3 = nn.Linear(512 * block.expansion, num_classes)
-
+        
+        
+        self.middle_fc3 = nn.ModuleList()
+        if self.n_attributes > 0:
+            if not bottleneck: #multitasking
+                self.middle_fc3.append(FC(512 * block.expansion, num_classes, expand_dim))
+            for i in range(self.n_attributes):
+                self.middle_fc3.append(FC(512 * block.expansion, 1, expand_dim))
+        else:
+            self.middle_fc3.append(FC(512 * block.expansion, num_classes, expand_dim))
+        
+        
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         #self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -242,21 +272,38 @@ class Multi_ResNet(nn.Module):
         middle_output1 = self.avgpool1(middle_output1)
         middle1_fea = middle_output1
         middle_output1 = torch.flatten(middle_output1, 1)
-        middle_output1 = self.middle_fc1(middle_output1)
+        
+        
+        middle_output1_l = []
+        for fc in self.middle_fc1:
+            middle_output1_l.append(fc(middle_output1))
+        middle_output1 = middle_output1_l        
 
         x = self.layer2(x)
         middle_output2 = self.bottleneck2_1(x)
         middle_output2 = self.avgpool2(middle_output2)
         middle2_fea = middle_output2
         middle_output2 = torch.flatten(middle_output2, 1)
-        middle_output2 = self.middle_fc2(middle_output2)
+
+
+        middle_output2_l = []
+        for fc in self.middle_fc2:
+            middle_output2_l.append(fc(middle_output2))
+        middle_output2 = middle_output2_l
 
         x = self.layer3(x)
         middle_output3 = self.bottleneck3_1(x)
         middle_output3 = self.avgpool3(middle_output3)
         middle3_fea = middle_output3
         middle_output3 = torch.flatten(middle_output3, 1)
-        middle_output3 = self.middle_fc3(middle_output3)
+
+
+        middle_output3_l = []
+        for fc in self.middle_fc3:
+            middle_output3_l.append(fc(middle_output3))
+        middle_output3 = middle_output3_l
+
+
 
         x = self.layer4(x)
         x = self.avgpool(x)
