@@ -20,7 +20,7 @@ def run_experiments(dataset, args):
         )
 
     elif dataset == 'CUB':
-        from CUB.train_train_SD import (
+        from CUB.train_SD import (
             train_X_to_C,
             train_oracle_C_to_y_and_test_on_Chat,
             train_Chat_to_y_and_test_on_Chat,
