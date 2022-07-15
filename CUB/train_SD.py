@@ -114,14 +114,6 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
 
 
 
-
-
-
-
-
-
-        outputs = model(inputs_var)
-
         if not args.bottleneck:
             loss_main = criterion(outputs[0], labels_var)
             losses.append(loss_main)
