@@ -270,7 +270,7 @@ class Multi_ResNet(nn.Module):
             out[0] += self.cy_fc(attr_preds)
 
         else:
-            return out
+            return out, middle_output1, middle_output2, middle_output3, final_fea, middle1_fea, middle2_fea, middle3_fea
 
         return x, middle_output1, middle_output2, middle_output3, final_fea, middle1_fea, middle2_fea, middle3_fea
 
