@@ -130,13 +130,22 @@ class Multi_ResNet(nn.Module):
         num_classes (int): class num
     """
 
-    def __init__(self, block, layers, num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, three_class=False, connect_CY=False):
+    def __init__(self, block, layers, num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, connect_CY=False):
         super(Multi_ResNet, self).__init__()
+
+        self.transform_input = transform_input
+        self.n_attributes = n_attributes
+        self.bottleneck = bottleneck
         self.inplanes = 64
         self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
         # self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+        if connect_CY:
+            self.cy_fc = FC(n_attributes, num_classes, expand_dim)
+        else:
+            self.cy_fc = None
 
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
@@ -256,5 +265,5 @@ class Multi_ResNet(nn.Module):
 def multi_resnet50_kd(num_classes=1000):
     return Multi_ResNet(BottleneckBlock, [3,4,6,3], num_classes=num_classes)
 
-def multi_resnet18_kd(num_classes=1000):
-    return Multi_ResNet(BasicBlock, [2,2,2,2], num_classes=num_classes)
+def multi_resnet18_kd(num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, connect_CY=False):
+    return Multi_ResNet(BasicBlock, [2,2,2,2], num_classes=num_classes, transform_input=transform_input, n_attributes=n_attributes, bottleneck=bottleneck, expand_dim=expand_dim, connect_CY=connect_CY)
