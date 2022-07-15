@@ -86,7 +86,7 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
 
 
         outputs, middle_output1, middle_output2, middle_output3, \
-            final_fea, middle1_fea, middle2_fea, middle3_fea = model(inputs)
+            final_fea, middle1_fea, middle2_fea, middle3_fea = model(inputs.cuda())
         
     
                    
