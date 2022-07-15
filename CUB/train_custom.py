@@ -54,6 +54,7 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
     """
     For the rest of the networks (X -> A, cotraining, simple finetune)
     """
+    print(model)
     if is_training:
         model.train()
     else:
