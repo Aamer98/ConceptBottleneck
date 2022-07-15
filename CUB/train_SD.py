@@ -17,8 +17,8 @@ from CUB import probe, tti, gen_cub_synthetic, hyperopt
 from CUB.dataset import load_data, find_class_imbalance
 from CUB.config import BASE_DIR, N_CLASSES, N_ATTRIBUTES, UPWEIGHT_RATIO, MIN_LR, LR_DECAY_SIZE
 from CUB.models import ModelXtoCY, ModelXtoChat_ChatToY, ModelXtoY, ModelXtoC, ModelOracleCtoY, ModelXtoCtoY
-import resnet_SD as models
-from utils import kd_loss_function, feature_loss_function
+import CUB.resnet_SD as models
+from CUB.utils import kd_loss_function, feature_loss_function
 
 
 
