@@ -130,7 +130,7 @@ class Multi_ResNet(nn.Module):
         num_classes (int): class num
     """
 
-    def __init__(self, block, layers, num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, connect_CY=False):
+    def __init__(self, block, layers, num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, connect_CY=False, args = None):
         super(Multi_ResNet, self).__init__()
 
         self.transform_input = transform_input
@@ -324,5 +324,5 @@ class Multi_ResNet(nn.Module):
 def multi_resnet50_kd(num_classes=1000):
     return Multi_ResNet(BottleneckBlock, [3,4,6,3], num_classes=num_classes)
 
-def multi_resnet18_kd(num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, connect_CY=False):
-    return Multi_ResNet(BasicBlock, [2,2,2,2], num_classes=num_classes, transform_input=transform_input, n_attributes=n_attributes, bottleneck=bottleneck, expand_dim=expand_dim, connect_CY=connect_CY)
+def multi_resnet18_kd(num_classes=1000, transform_input=False, n_attributes=0, bottleneck=False, expand_dim=0, connect_CY=False, args = None):
+    return Multi_ResNet(BasicBlock, [2,2,2,2], num_classes=num_classes, transform_input=transform_input, n_attributes=n_attributes, bottleneck=bottleneck, expand_dim=expand_dim, connect_CY=connect_CY, args = args)

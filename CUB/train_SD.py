@@ -230,7 +230,7 @@ def train(model, args):
     logger.write(str(args) + '\n')
     logger.write(str(imbalance) + '\n')
     logger.flush()
-    model = models.__dict__['multi_resnet18_kd'](num_classes=N_CLASSES, n_attributes=args.n_attributes, bottleneck=True).cuda()
+    model = models.__dict__['multi_resnet18_kd'](num_classes=N_CLASSES, n_attributes=args.n_attributes, bottleneck=True, args = args).cuda()
     #model = model.cuda()
     criterion = torch.nn.CrossEntropyLoss()
     if args.use_attr and not args.no_img:
