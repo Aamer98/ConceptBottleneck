@@ -128,6 +128,32 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
             sigmoid_outputs = torch.nn.Sigmoid()(torch.cat(outputs, dim=1))
             acc = binary_accuracy(sigmoid_outputs, attr_labels)
             acc_meter.update(acc.data.cpu().numpy(), inputs.size(0))
+
+            
+            sigmoid_middle_output1 = torch.nn.Sigmoid()(torch.cat(middle_output1, dim=1))
+            sigmoid_middle_output2 = torch.nn.Sigmoid()(torch.cat(middle_output2, dim=1))
+            sigmoid_middle_output3 = torch.nn.Sigmoid()(torch.cat(middle_output3, dim=1))
+
+            temp4 = sigmoid_outputs/args.temperature            
+            loss1by4 = kd_loss_function(sigmoid_middle_output1, temp4.detach(), args) * (args.temperature**2)
+            loss2by4 = kd_loss_function(sigmoid_middle_output2, temp4.detach(), args) * (args.temperature**2)
+            loss3by4 = kd_loss_function(sigmoid_middle_output3, temp4.detach(), args) * (args.temperature**2)
+
+            middle1_prec1 = binary_accuracy(sigmoid_middle_output1, attr_labels)
+            middle2_prec1 = binary_accuracy(sigmoid_middle_output2, attr_labels)
+            middle3_prec1 = binary_accuracy(sigmoid_middle_output3, attr_labels)
+            
+            losses1_kd.update(loss1by4, inputs.size(0))            
+            losses2_kd.update(loss2by4, inputs.size(0))            
+            losses3_kd.update(loss3by4, inputs.size(0))
+
+            top1.update(acc.data.cpu().numpy(), inputs.size(0))
+            middle1_top1.update(middle1_prec1.data.cpu().numpy(), inputs.size(0))
+            middle2_top1.update(middle2_prec1.data.cpu().numpy(), inputs.size(0))
+            middle3_top1.update(middle3_prec1.data.cpu().numpy(), inputs.size(0))
+
+
+
         else:
             acc = accuracy(outputs[0], labels, topk=(1,)) #only care about class prediction accuracy
             acc_meter.update(acc[0], inputs.size(0))
@@ -180,9 +206,9 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         middle2_losses.update(middle2_loss.item(), inputs.size(0))
         middle3_losses.update(middle3_loss.item(), inputs.size(0))
 
-        losses1_kd.update(loss1by4, inputs.size(0))            
-        losses2_kd.update(loss2by4, inputs.size(0))            
-        losses3_kd.update(loss3by4, inputs.size(0))
+        #losses1_kd.update(loss1by4, inputs.size(0))            
+        #losses2_kd.update(loss2by4, inputs.size(0))            
+        #losses3_kd.update(loss3by4, inputs.size(0))
             
 
         feature_loss_1 = feature_loss_function(middle1_fea, final_fea.detach()) 
