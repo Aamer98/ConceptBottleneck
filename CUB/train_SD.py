@@ -218,12 +218,12 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         feature_loss_3 = feature_loss_function(middle3_fea, final_fea.detach()) 
         feature_losses_3.update(feature_loss_3, inputs.size(0))
 
-        #total_loss = (1 - args.alpha) * (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
-        #            args.alpha * (loss1by4 + loss2by4 + loss3by4) + \
-        #            args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
-        
-        total_loss = (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
+        total_loss = (1 - args.alpha) * (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
+                    args.alpha * (loss1by4 + loss2by4 + loss3by4) + \
                     args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
+        
+        #total_loss = (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
+        #            args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
         
         total_losses.update(total_loss.item(), inputs.size(0))
         
