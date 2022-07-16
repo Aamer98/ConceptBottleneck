@@ -114,9 +114,9 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 l_middle2_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
                 l_middle3_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
                 l_temp4.append(outputs[i+out_start] / args.temperature)
-                l_loss1by4.append(kd_loss_function(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
-                l_loss2by4.append(kd_loss_function(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
-                l_loss3by4.append(kd_loss_function(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
+                #l_loss1by4.append(kd_loss_function(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
+                #l_loss2by4.append(kd_loss_function(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
+                #l_loss3by4.append(kd_loss_function(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
 
                 l_middle1_prec1.append(accuracy(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
                 l_middle2_prec1.append(accuracy(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
@@ -192,9 +192,13 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         feature_loss_3 = feature_loss_function(middle3_fea, final_fea.detach()) 
         feature_losses_3.update(feature_loss_3, input.size(0))
 
-        total_loss = (1 - args.alpha) * (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
-                    args.alpha * (loss1by4 + loss2by4 + loss3by4) + \
+        #total_loss = (1 - args.alpha) * (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
+        #            args.alpha * (loss1by4 + loss2by4 + loss3by4) + \
+        #            args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
+        
+        total_loss = (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
                     args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
+        
         total_losses.update(total_loss.item(), input.size(0))
         
 
