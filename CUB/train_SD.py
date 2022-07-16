@@ -176,21 +176,21 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
             loss2by4 = sum(l_loss2by4)
             loss3by4 = sum(l_loss3by4)
 
-        middle1_losses.update(middle1_loss.item(), input.size(0))
-        middle2_losses.update(middle2_loss.item(), input.size(0))
-        middle3_losses.update(middle3_loss.item(), input.size(0))
+        middle1_losses.update(middle1_loss.item(), inputs.size(0))
+        middle2_losses.update(middle2_loss.item(), inputs.size(0))
+        middle3_losses.update(middle3_loss.item(), inputs.size(0))
 
-        losses1_kd.update(loss1by4, input.size(0))            
-        losses2_kd.update(loss2by4, input.size(0))            
-        losses3_kd.update(loss3by4, input.size(0))
+        losses1_kd.update(loss1by4, inputs.size(0))            
+        losses2_kd.update(loss2by4, inputs.size(0))            
+        losses3_kd.update(loss3by4, inputs.size(0))
             
 
         feature_loss_1 = feature_loss_function(middle1_fea, final_fea.detach()) 
-        feature_losses_1.update(feature_loss_1, input.size(0))
+        feature_losses_1.update(feature_loss_1, inputs.size(0))
         feature_loss_2 = feature_loss_function(middle2_fea, final_fea.detach()) 
-        feature_losses_2.update(feature_loss_2, input.size(0))
+        feature_losses_2.update(feature_loss_2, inputs.size(0))
         feature_loss_3 = feature_loss_function(middle3_fea, final_fea.detach()) 
-        feature_losses_3.update(feature_loss_3, input.size(0))
+        feature_losses_3.update(feature_loss_3, inputs.size(0))
 
         #total_loss = (1 - args.alpha) * (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
         #            args.alpha * (loss1by4 + loss2by4 + loss3by4) + \
@@ -199,7 +199,7 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         total_loss = (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
                     args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
         
-        total_losses.update(total_loss.item(), input.size(0))
+        total_losses.update(total_loss.item(), inputs.size(0))
         
 
 
