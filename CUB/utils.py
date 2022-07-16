@@ -5,6 +5,7 @@ import os
 import random
 from matplotlib.pyplot import figure, imshow, axis, show
 from matplotlib.image import imread
+import torch
 
 N_CLASSES = 200
 N_ATTRIBUTES = 312
