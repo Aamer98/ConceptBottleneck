@@ -87,15 +87,6 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
 
         outputs, middle_output1, middle_output2, middle_output3, final_fea, middle1_fea, middle2_fea, middle3_fea = model(inputs.cuda())
         
-    
-                   
-
-
-
-
-
-
-
 
         losses = []
         l_middle1_loss = []
@@ -110,10 +101,6 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         l_middle3_prec1 = []
         l_prec = []
         out_start = 0
-
-
-
-
 
 
         if not args.bottleneck:
@@ -131,14 +118,10 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 l_loss2by4.append(kd_loss_function(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
                 l_loss3by4.append(kd_loss_function(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
 
-
                 l_middle1_prec1.append(accuracy(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
                 l_middle2_prec1.append(accuracy(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
                 l_middle3_prec1.append(accuracy(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
                 l_prec.append(accuracy(outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
-
-
-
 
 
         if args.bottleneck: #attribute accuracy
@@ -180,6 +163,8 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                     loss1by4 = loss1by4 / (1 + args.attr_loss_weight * args.n_attributes)
                     loss2by4 = loss2by4 / (1 + args.attr_loss_weight * args.n_attributes)
                     loss3by4 = loss3by4 / (1 + args.attr_loss_weight * args.n_attributes)
+        
+        
         else: #finetune
             ototal_loss = sum(losses)
             middle1_loss = sum(l_middle1_loss)
@@ -190,10 +175,6 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
             loss1by4 = sum(l_loss1by4)
             loss2by4 = sum(l_loss2by4)
             loss3by4 = sum(l_loss3by4)
-
-
-
-        
 
         middle1_losses.update(middle1_loss.item(), input.size(0))
         middle2_losses.update(middle2_loss.item(), input.size(0))
@@ -229,16 +210,14 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         middle3_top1.update(middle3_prec1, input.size(0))
 
 
-
-
-
-
         loss_meter.update(total_loss.item(), inputs.size(0))
         if is_training:
             optimizer.zero_grad()
             total_loss.backward()
             optimizer.step()
-    return loss_meter, acc_meter
+
+    
+    return loss_meter, acc_meter, top1, middle1_losses, middle2_losses, middle3_losses, losses1_kd, losses2_kd, losses3_kd, feature_losses_1, feature_losses_2, feature_losses_3, total_losses, middle1_top1, middle2_top1, middle3_top1
 
 
 
@@ -331,19 +310,40 @@ def train(model, args):
         if args.no_img:
             train_loss_meter, train_acc_meter = run_epoch_simple(model, optimizer, train_loader, train_loss_meter, train_acc_meter, criterion, args, is_training=True)
         else:
-            train_loss_meter, train_acc_meter = run_epoch(model, optimizer, train_loader, train_loss_meter, train_acc_meter, criterion, attr_criterion, args, batch_time, 
+            train_loss_meter, train_acc_meter,top1, middle1_losses, middle2_losses, middle3_losses, losses1_kd, losses2_kd, losses3_kd, feature_losses_1, feature_losses_2, feature_losses_3, total_losses, middle1_top1, middle2_top1, middle3_top1 = run_epoch(model, optimizer, train_loader, train_loss_meter, train_acc_meter, criterion, attr_criterion, args, batch_time, 
                                                             data_time, losses, top1, middle1_losses, middle2_losses, middle3_losses, losses1_kd, losses2_kd, losses3_kd, 
                                                             feature_losses_1, feature_losses_2, feature_losses_3, total_losses, middle1_top1, middle2_top1, middle3_top1, is_training=True,)
  
         if not args.ckpt: # evaluate on val set
             val_loss_meter = AverageMeter()
             val_acc_meter = AverageMeter()
+
+
+            val_batch_time = AverageMeter()
+            val_data_time = AverageMeter()
+            val_losses = AverageMeter()
+            val_top1 = AverageMeter()
+            val_middle1_losses = AverageMeter()
+            val_middle2_losses = AverageMeter()
+            val_middle3_losses = AverageMeter()
+            val_losses1_kd = AverageMeter()
+            val_losses2_kd = AverageMeter()
+            val_losses3_kd = AverageMeter()
+            val_feature_losses_1 = AverageMeter()
+            val_feature_losses_2 = AverageMeter()
+            val_feature_losses_3 = AverageMeter()
+            val_total_losses = AverageMeter()
+            val_middle1_top1 = AverageMeter()
+            val_middle2_top1 = AverageMeter()
+            val_middle3_top1 = AverageMeter()            
         
             with torch.no_grad():
                 if args.no_img:
                     val_loss_meter, val_acc_meter = run_epoch_simple(model, optimizer, val_loader, val_loss_meter, val_acc_meter, criterion, args, is_training=False)
                 else:
-                    val_loss_meter, val_acc_meter = run_epoch(model, optimizer, val_loader, val_loss_meter, val_acc_meter, criterion, attr_criterion, args, is_training=False)
+                    val_loss_meter, val_acc_meter, val_top1, val_middle1_losses, val_middle2_losses, val_middle3_losses, val_losses1_kd, val_losses2_kd, val_losses3_kd, val_feature_losses_1, val_feature_losses_2, val_feature_losses_3, val_total_losses, val_middle1_top1, val_middle2_top1, val_middle3_top1 = run_epoch(model, optimizer, val_loader, val_loss_meter, val_acc_meter, criterion, attr_criterion, args,  val_batch_time, 
+                                                            val_data_time, val_losses, val_top1, val_middle1_losses, val_middle2_losses, val_middle3_losses, val_losses1_kd, val_losses2_kd, val_losses3_kd, 
+                                                            val_feature_losses_1, val_feature_losses_2, val_feature_losses_3, val_total_losses, val_middle1_top1, val_middle2_top1, val_middle3_top1, is_training=False)
 
         else: #retraining
             val_loss_meter = train_loss_meter
