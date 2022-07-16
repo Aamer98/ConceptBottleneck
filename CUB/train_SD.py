@@ -118,10 +118,10 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 #l_loss2by4.append(kd_loss_function(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
                 #l_loss3by4.append(kd_loss_function(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
 
-                l_middle1_prec1.append(accuracy(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
-                l_middle2_prec1.append(accuracy(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
-                l_middle3_prec1.append(accuracy(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
-                l_prec.append(accuracy(outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+                #l_middle1_prec1.append(accuracy(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+                #l_middle2_prec1.append(accuracy(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+                #l_middle3_prec1.append(accuracy(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
+                #l_prec.append(accuracy(outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
 
 
         if args.bottleneck: #attribute accuracy
@@ -202,16 +202,18 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         total_losses.update(total_loss.item(), input.size(0))
         
 
-        prec1 = sum(l_prec)/ args.n_attributes
-        middle1_prec1 = sum(l_middle1_prec1)/ args.n_attributes
-        middle2_prec1 = sum(l_middle2_prec1)/ args.n_attributes
-        middle3_prec1 = sum(l_middle3_prec1)/ args.n_attributes
 
 
-        top1.update(prec1, input.size(0))
-        middle1_top1.update(middle1_prec1, input.size(0))
-        middle2_top1.update(middle2_prec1, input.size(0))
-        middle3_top1.update(middle3_prec1, input.size(0))
+        #prec1 = sum(l_prec)/ args.n_attributes
+        #middle1_prec1 = sum(l_middle1_prec1)/ args.n_attributes
+        #middle2_prec1 = sum(l_middle2_prec1)/ args.n_attributes
+        #middle3_prec1 = sum(l_middle3_prec1)/ args.n_attributes
+
+
+        #top1.update(prec1, input.size(0))
+        #middle1_top1.update(middle1_prec1, input.size(0))
+        #middle2_top1.update(middle2_prec1, input.size(0))
+        #middle3_top1.update(middle3_prec1, input.size(0))
 
 
         loss_meter.update(total_loss.item(), inputs.size(0))
