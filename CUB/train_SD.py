@@ -96,16 +96,17 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         l_loss1by4 = []
         l_loss2by4 = []
         l_loss3by4 = []
-        l_middle1_prec1 = []
-        l_middle2_prec1 = []
-        l_middle3_prec1 = []
-        l_prec = []
         out_start = 0
 
 
         if not args.bottleneck:
             loss_main = criterion(outputs[0], labels_var)
+
+
             losses.append(loss_main)
+            l_middle1_loss.append(criterion(middle_output1[0], labels_var))
+            l_middle2_loss.append(criterion(middle_output2[0], labels_var))
+            l_middle3_loss.append(criterion(middle_output3[0], labels_var))
             out_start = 1
         if attr_criterion is not None and args.attr_loss_weight > 0: #X -> A, cotraining, end2end
             for i in range(len(attr_criterion)):
@@ -114,14 +115,6 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                 l_middle2_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
                 l_middle3_loss.append(args.attr_loss_weight * attr_criterion[i](middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i]))
                 l_temp4.append(outputs[i+out_start] / args.temperature)
-                #l_loss1by4.append(kd_loss_function(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
-                #l_loss2by4.append(kd_loss_function(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
-                #l_loss3by4.append(kd_loss_function(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), (outputs[i+out_start] / args.temperature).detach(), args) * (args.temperature**2))
-
-                #l_middle1_prec1.append(accuracy(middle_output1[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
-                #l_middle2_prec1.append(accuracy(middle_output2[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
-                #l_middle3_prec1.append(accuracy(middle_output3[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
-                #l_prec.append(accuracy(outputs[i+out_start].squeeze().type(torch.cuda.FloatTensor), attr_labels_var[:, i], topk=(1,))[0])
 
 
         if args.bottleneck: #attribute accuracy
@@ -205,10 +198,6 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
         middle1_losses.update(middle1_loss.item(), inputs.size(0))
         middle2_losses.update(middle2_loss.item(), inputs.size(0))
         middle3_losses.update(middle3_loss.item(), inputs.size(0))
-
-        #losses1_kd.update(loss1by4, inputs.size(0))            
-        #losses2_kd.update(loss2by4, inputs.size(0))            
-        #losses3_kd.update(loss3by4, inputs.size(0))
             
 
         feature_loss_1 = feature_loss_function(middle1_fea, final_fea.detach()) 
@@ -222,24 +211,14 @@ def run_epoch(model, optimizer, loader, loss_meter, acc_meter, criterion, attr_c
                     args.alpha * (loss1by4 + loss2by4 + loss3by4) + \
                     args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
         
-        #total_loss = (ototal_loss + middle1_loss + middle2_loss + middle3_loss) + \
-        #            args.beta * (feature_loss_1 + feature_loss_2 + feature_loss_3)
+
         
         total_losses.update(total_loss.item(), inputs.size(0))
         
 
 
 
-        #prec1 = sum(l_prec)/ args.n_attributes
-        #middle1_prec1 = sum(l_middle1_prec1)/ args.n_attributes
-        #middle2_prec1 = sum(l_middle2_prec1)/ args.n_attributes
-        #middle3_prec1 = sum(l_middle3_prec1)/ args.n_attributes
 
-
-        #top1.update(prec1, input.size(0))
-        #middle1_top1.update(middle1_prec1, input.size(0))
-        #middle2_top1.update(middle2_prec1, input.size(0))
-        #middle3_top1.update(middle3_prec1, input.size(0))
 
 
         loss_meter.update(total_loss.item(), inputs.size(0))
@@ -394,7 +373,21 @@ def train(model, args):
         
         logger.write('Epoch [%d]:\tTrain loss: %.4f\tTrain accuracy: %.4f\t'
                 'Val loss: %.4f\tVal acc: %.4f\t'
+                'Best val epoch: %d\tTrain loss: %.4f\tTrain accuracy: %.4f\t'
+                'Val loss: %.4f\tVal acc: %.4f\t'
                 'Best val epoch: %d\n'
+                'middle loss 1: %d\n'
+                'middle loss 2: %d\n'
+                'middle loss 3: %d\n' 
+                'middle acc 1: %d\n'
+                'middle acc 2: %d\n'
+                'middle acc 3: %d\t'                                                
+                'kd loss 1: %d\n'
+                'kd loss 2: %d\n'
+                'kd loss 3: %d\n'
+                'feature loss 1: %d\n'
+                'feature loss 2: %d\n'
+                'feature loss 3: %d\t'                                                
                 % (epoch, train_loss_avg, train_acc_meter.avg, val_loss_avg, val_acc_meter.avg, best_val_epoch)) 
         logger.flush()
         
