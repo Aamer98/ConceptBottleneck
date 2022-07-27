@@ -376,19 +376,36 @@ def train(model, args):
                 'Best val epoch: %d\tTrain loss: %.4f\tTrain accuracy: %.4f\t'
                 'Val loss: %.4f\tVal acc: %.4f\t'
                 'Best val epoch: %d\n'
-                'middle loss 1: %d\n'
-                'middle loss 2: %d\n'
-                'middle loss 3: %d\n' 
-                'middle acc 1: %d\n'
-                'middle acc 2: %d\n'
-                'middle acc 3: %d\t'                                                
-                'kd loss 1: %d\n'
-                'kd loss 2: %d\n'
-                'kd loss 3: %d\n'
-                'feature loss 1: %d\n'
-                'feature loss 2: %d\n'
-                'feature loss 3: %d\t'                                                
-                % (epoch, train_loss_avg, train_acc_meter.avg, val_loss_avg, val_acc_meter.avg, best_val_epoch)) 
+                'train middle loss 1: %d\n'
+                'train middle loss 2: %d\n'
+                'train middle loss 3: %d\n'
+                'val middle loss 1: %d\n'
+                'val middle loss 2: %d\n'
+                'val middle loss 3: %d\t'                                                 
+                'train middle acc 1: %d\n'
+                'train middle acc 2: %d\n'
+                'train middle acc 3: %d\n'
+                'val middle acc 1: %d\n'
+                'val middle acc 2: %d\n'
+                'val middle acc 3: %d\t'                                                                    
+                'train kd loss 1: %d\n'
+                'train kd loss 2: %d\n'
+                'train kd loss 3: %d\n'
+                'val kd loss 1: %d\n'
+                'val kd loss 2: %d\n'
+                'val kd loss 3: %d\t'                
+                'train feature loss 1: %d\n'
+                'train feature loss 2: %d\n'
+                'train feature loss 3: %d\n'
+                'val feature loss 1: %d\n'
+                'val feature loss 2: %d\n'
+                'val feature loss 3: %d\t'                                                                  
+                % (epoch, train_loss_avg, train_acc_meter.avg, val_loss_avg, val_acc_meter.avg, best_val_epoch,
+                middle1_losses.avg, middle2_losses.avg, middle3_losses.avg, val_middle1_losses.avg, val_middle2_losses.avg, val_middle3_losses.avg,
+                middle1_top1.avg, middle2_top1.avg, middle3_top1.avg, val_middle1_top1.avg, val_middle2_top1.avg, val_middle3_top1.avg,
+                losses1_kd.avg, losses2_kd.avg, losses3_kd.avg, val_losses1_kd.avg, val_losses2_kd.avg, val_losses3_kd.avg,
+                feature_losses_1.avg, feature_losses_2.avg, feature_losses_3.avg, val_feature_losses_1.avg, val_feature_losses_2.avg, val_feature_losses_3.avg
+                )) 
         logger.flush()
         
         if epoch <= stop_epoch:
