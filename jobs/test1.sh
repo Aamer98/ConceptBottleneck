@@ -1,0 +1,63 @@
+#!/bin/bash
+#SBATCH --mail-user=ar.aamer@gmail.com
+#SBATCH --mail-type=BEGIN
+#SBATCH --mail-type=END
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=REQUEUE
+#SBATCH --mail-type=ALL
+#SBATCH --job-name=cbm_test
+#SBATCH --output=%x-%j.out
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:1
+#SBATCH --ntasks-per-node=32
+#SBATCH --mem=127000M
+#SBATCH --time=0-00:20
+#SBATCH --account=rrg-ebrahimi
+
+nvidia-smi
+
+source ~/my_env/cbm/bin/activate
+
+echo "------------------------------------< Data preparation>----------------------------------"
+echo "Copying the source code"
+date +"%T"
+cd $SLURM_TMPDIR
+cp -r ~/scratch/ConceptBottleneck .
+
+
+echo "Copying the datasets"
+date +"%T"
+cp -r ~/scratch/Datasets/CUB_200_2011.tar.gz .
+cp -r ~/scratch/Datasets/places365.tar.gz .
+cp -r ~/scratch/Datasets/pretrained.tar.gz .
+cp -r ~/scratch/Datasets/CUB_processed.tar.gz .
+tar -xvzf places365.tar.gz
+tar -xvzf CUB_200_2011.tar.gz
+tar -xvzf pretrained.tar.gz
+tar -xvzf CUB_processed.tar.gz
+
+
+mkdir ConceptModel__Seed1
+mkdir ConceptModel__Seed1/outputs/
+
+cd ..
+echo "----------------------------------< End of data preparation>--------------------------------"
+date +"%T"
+echo "--------------------------------------------------------------------------------------------"
+
+echo "---------------------------------------<Run the program>------------------------------------"
+date +"%T"
+cd $SLURM_TMPDIR
+
+cd ConceptBottleneck
+
+python3 experiments.py cub Concept_XtoC --seed 1 -ckpt 1 -log_dir CUB/ConceptModel__Seed1/outputs/ -e 1000 -optimizer sgd -pretrained -use_aux -use_attr -weighted_loss multiple -data_dir CUB/class_attr_data_10 -n_attributes 112 -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 -scheduler_step 1000 -bottleneck
+
+
+echo "-----------------------------------<End of run the program>---------------------------------"
+date +"%T"
+echo "--------------------------------------<backup the result>-----------------------------------"
+date +"%T"
+cd $SLURM_TMPDIR
+cp -r $SLURM_TMPDIR/cub_cbn/logs/test ~/scratch/cub_cbn/logs
+cp -r $SLURM_TMPDIR/cub_cbn/wandb ~/scratch/cub_cbn/logs/test
