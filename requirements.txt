@@ -1,13 +1,3 @@
-absl-py
-astor
-blis
-certifi
-chardet
-cycler
-cymem
-decorator
-gast
-grpcio
 h5py
 idna
 imageio
@@ -48,5 +38,5 @@ torch
 torchvision
 tqdm
 urllib3
-wasabi
+
 
