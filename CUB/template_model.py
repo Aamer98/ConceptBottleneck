@@ -11,13 +11,6 @@ import torch.utils.model_zoo as model_zoo
 
 __all__ = ['MLP', 'Inception3', 'inception_v3', 'End2EndModel']
 
-model_urls = {
-    # Downloaded inception model (optional)
-    'downloaded': 'pretrained/inception_v3_google-1a9a5a14.pth',
-    # Inception v3 ported from TensorFlow
-    'inception_v3_google': 'https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth',
-}
-
 
 class End2EndModel(torch.nn.Module):
     def __init__(self, model1, model2, use_relu=False, use_sigmoid=False, n_class_attr=2):
@@ -81,19 +74,6 @@ def inception_v3(pretrained, freeze, **kwargs):
         transform_input (bool): If True, preprocesses the input according to the method with which it
             was trained on ImageNet. Default: *False*
     """
-    if pretrained:
-        if 'transform_input' not in kwargs:
-            kwargs['transform_input'] = True
-        model = Inception3(**kwargs)
-        if os.path.exists(model_urls.get('downloaded')):
-            model.load_partial_state_dict(torch.load(model_urls['downloaded']))
-        else:
-            model.load_partial_state_dict(model_zoo.load_url(model_urls['inception_v3_google']))
-        if freeze:  # only finetune fc layer
-            for name, param in model.named_parameters():
-                if 'fc' not in name:  # and 'Mixed_7c' not in name:
-                    param.requires_grad = False
-        return model
 
     return Inception3(**kwargs)
 
