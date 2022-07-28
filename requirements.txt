@@ -31,8 +31,6 @@ protobuf
 pycurl
 pygobject
 pyparsing
-python-apt
-python-dateutil
 pytz
 PyWavelets
 PyYAML
