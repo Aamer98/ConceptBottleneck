@@ -20,7 +20,6 @@ Markdown
 matplotlib
 mpmath
 murmurhash
-networkx
 nltk
 nose
 numpy
