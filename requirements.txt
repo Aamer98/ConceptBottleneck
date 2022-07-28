@@ -47,7 +47,6 @@ thinc
 torch
 torchvision
 tqdm
-unattended-upgrades
 urllib3
 wasabi
 Werkzeug
