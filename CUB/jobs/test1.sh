@@ -37,8 +37,7 @@ tar -xvzf pretrained.tar.gz
 tar -xvzf CUB_processed.tar.gz
 
 
-mkdir ConceptModel__Seed1
-mkdir ConceptModel__Seed1/outputs/
+mkdir $SLURM_TMPDIR/ConceptBottleneck/CUB/logs/test1
 
 cd ..
 echo "----------------------------------< End of data preparation>--------------------------------"
@@ -51,7 +50,7 @@ cd $SLURM_TMPDIR
 
 cd ConceptBottleneck
 
-python3 experiments.py cub Concept_XtoC --seed 1 -ckpt 1 -log_dir CUB/ConceptModel__Seed1/outputs/ -e 1000 -optimizer sgd -pretrained -use_aux -use_attr -weighted_loss multiple -data_dir CUB/class_attr_data_10 -n_attributes 112 -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 -scheduler_step 1000 -bottleneck
+python3 experiments.py cub Concept_XtoC --seed 1 -ckpt 1 -log_dir logs/test1 -e 1000 -optimizer sgd -pretrained -use_aux -use_attr -weighted_loss multiple -data_dir CUB/class_attr_data_10 -n_attributes 112 -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 -scheduler_step 1000 -bottleneck
 
 
 echo "-----------------------------------<End of run the program>---------------------------------"
@@ -59,5 +58,4 @@ date +"%T"
 echo "--------------------------------------<backup the result>-----------------------------------"
 date +"%T"
 cd $SLURM_TMPDIR
-cp -r $SLURM_TMPDIR/cub_cbn/logs/test ~/scratch/cub_cbn/logs
-cp -r $SLURM_TMPDIR/cub_cbn/wandb ~/scratch/cub_cbn/logs/test
+cp -r $SLURM_TMPDIR/ConceptBottleneck/CUB/logs/test1 ~/scratch/ConceptBottleneck/CUB/logs
