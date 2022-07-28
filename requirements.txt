@@ -25,7 +25,6 @@ pytz
 PyWavelets
 PyYAML
 requests
-scikit-image
 scikit-learn
 scipy
 six
