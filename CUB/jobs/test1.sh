@@ -34,7 +34,7 @@ cp -r class_attr_data_10.zip .
 tar -xvzf places365.tar.gz
 tar -xvzf CUB_200_2011.tar.gz -C ./CUB_200_2011
 tar -xvzf pretrained.tar.gz
-unzip class_attr_data_10.zip -d /content
+unzip class_attr_data_10.zip -d .
 
 
 mkdir $SLURM_TMPDIR/ConceptBottleneck/CUB/logs/test1
