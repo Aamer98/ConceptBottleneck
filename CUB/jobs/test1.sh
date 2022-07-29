@@ -32,7 +32,7 @@ cp -r ~/scratch/Datasets/places365.tar.gz .
 cp -r ~/scratch/Datasets/pretrained.tar.gz .
 cp -r class_attr_data_10.zip .
 tar -xvzf places365.tar.gz
-tar -xvzf CUB_200_2011.tar.gz
+tar -xvzf CUB_200_2011.tar.gz -C ./CUB_200_2011
 tar -xvzf pretrained.tar.gz
 unzip class_attr_data_10.zip
 
