@@ -50,7 +50,7 @@ class CUBDataset(Dataset):
         img_path = img_data['img_path']
         # Trim unnecessary paths
         try:
-            idx = img_path.split('/').index('./CUB_200_2011')
+            idx = img_path.split('/').index('CUB_200_2011')
             if self.image_dir != 'images':
                 img_path = '/'.join([self.image_dir] + img_path.split('/')[idx+1:])
                 img_path = img_path.replace('images/', '')
