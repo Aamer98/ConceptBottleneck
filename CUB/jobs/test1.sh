@@ -50,7 +50,7 @@ cd $SLURM_TMPDIR
 
 cd ConceptBottleneck
 
-python3 experiments.py cub Concept_XtoC --seed 1 -ckpt 1 -log_dir logs/test1 -e 1000 -optimizer sgd -pretrained -use_aux -use_attr -weighted_loss multiple -data_dir $SLURM_TMPDIR/class_attr_data_10 -n_attributes 112 -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 -scheduler_step 1000 -bottleneck
+python3 experiments.py cub Concept_XtoC --seed 1 -ckpt 1 -log_dir logs/test1 -e 1000 -optimizer sgd -pretrained -use_aux -use_attr -weighted_loss multiple -data_dir $SLURM_TMPDIR/class_attr_data_10 -n_attributes 112 -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 -scheduler_step 1000 -bottleneck -image_dir $SLURM_TMPDIR/CUB_200_2011
 
 
 echo "-----------------------------------<End of run the program>---------------------------------"
