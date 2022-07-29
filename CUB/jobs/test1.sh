@@ -30,11 +30,11 @@ date +"%T"
 cp -r ~/scratch/Datasets/CUB_200_2011.tar.gz .
 cp -r ~/scratch/Datasets/places365.tar.gz .
 cp -r ~/scratch/Datasets/pretrained.tar.gz .
-cp -r ~/scratch/Datasets/CUB_processed.tar.gz .
+cp -r class_attr_data_10.zip .
 tar -xvzf places365.tar.gz
 tar -xvzf CUB_200_2011.tar.gz
 tar -xvzf pretrained.tar.gz
-tar -xvzf CUB_processed.tar.gz
+unzip class_attr_data_10.zip
 
 
 mkdir $SLURM_TMPDIR/ConceptBottleneck/CUB/logs/test1
@@ -50,8 +50,7 @@ cd $SLURM_TMPDIR
 
 cd ConceptBottleneck
 
-python3 experiments.py cub Concept_XtoC --seed 1 -ckpt 1 -log_dir logs/test1 -e 1000 -optimizer sgd -pretrained -use_aux -use_attr -weighted_loss multiple -data_dir $SLURM_TMPDIR/class_attr_data_10 -n_attributes 112 -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 -scheduler_step 1000 -bottleneck -image_dir $SLURM_TMPDIR/CUB_200_2011
-
+python3 experiments.py cub Concept_XtoC --seed 1 -ckpt 1 -log_dir logs/test1 -e 1000 -optimizer sgd -pretrained -use_aux -use_attr -weighted_loss multiple -data_dir $SLURM_TMPDIR/class_attr_data_10 -n_attributes 112 -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 -scheduler_step 1000 -bottleneck 
 
 echo "-----------------------------------<End of run the program>---------------------------------"
 date +"%T"
